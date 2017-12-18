@@ -4,11 +4,11 @@ import {
   View,
   Text,
   Dimensions,
-  ScrollView,
+  TouchableOpacity,
 } from 'react-native';
+
 import MapView from 'react-native-maps';
-import EllipsMarker from "./markers/EllipsMarker";
-import AlertairTSMarker from "./markers/AlertairTSMarker";
+import flagPinkImg from  '../assets/flag-blue.png';
 
 const { width, height } = Dimensions.get('window');
 
@@ -17,8 +17,9 @@ const LATITUDE = 37.78825;
 const LONGITUDE = -122.4324;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
+let id = 0;
 
-export default class Map extends React.Component {
+class CustomMarkers extends React.Component {
   constructor(props) {
     super(props);
 
@@ -29,47 +30,54 @@ export default class Map extends React.Component {
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA,
       },
-      markers: [
-      ]
+      markers: [],
     };
-  }
-
-  newMarker(coordinate) {
-    if(parseInt(Math.random() * 1000) % 2 == 0) {
-      return new EllipsMarker("title", coordinate)
-    }
-    return new AlertairTSMarker("title2", coordinate)
   }
 
   onMapPress(e) {
     this.setState({
       markers: [
         ...this.state.markers,
-        this.newMarker(e.nativeEvent.coordinate)
+        {
+          coordinate: e.nativeEvent.coordinate,
+          key: `foo${id++}`,
+        },
       ],
     });
   }
 
   render() {
     return (
-      <MapView
-        style={styles.map}
-        onPress={(e) => this.onMapPress(e)}>
+      <View style={styles.container}>
+        <MapView
+          provider={this.props.provider}
+          style={styles.map}
+          initialRegion={this.state.region}
+          onPress={(e) => this.onMapPress(e)}
+        >
           {this.state.markers.map(marker => (
             <MapView.Marker
-            title={marker.title}
-            image={marker.image}
-            key={marker.title}
-            coordinate={marker.coordinate}/>
-          ))
-        }
-        <MapView.UrlTile urlTemplate="http://c.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      </MapView>
+              title={marker.key}
+              image={flagPinkImg}
+              key={marker.key}
+              coordinate={marker.coordinate}
+            />
+          ))}
+        </MapView>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            onPress={() => this.setState({ markers: [] })}
+            style={styles.bubble}
+          >
+            <Text>Tap to create a marker of random color</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     );
   }
 }
 
-Map.propTypes = {
+CustomMarkers.propTypes = {
   provider: MapView.ProviderPropType,
 };
 
@@ -105,4 +113,4 @@ const styles = StyleSheet.create({
   },
 });
 
-module.exports = Map;
+module.exports = CustomMarkers;

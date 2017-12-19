@@ -9,6 +9,7 @@ import {
 import MapView from 'react-native-maps';
 import EllipsMarker from "./markers/EllipsMarker";
 import AlertairTSMarker from "./markers/AlertairTSMarker";
+import MyLocationMapMarker from "./markers/MyLocationMapMarker";
 
 const { width, height } = Dimensions.get('window');
 
@@ -55,6 +56,9 @@ export default class Map extends React.Component {
       <MapView
         style={styles.map}
         onPress={(e) => this.onMapPress(e)}>
+          <MyLocationMapMarker
+            key="my_location"
+            title="MyPosition" />
           {this.state.markers.map(marker => (
             <MapView.Marker
             title={marker.title}
